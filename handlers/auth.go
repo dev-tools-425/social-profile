@@ -43,3 +43,42 @@ func GoogleCallback(w http.ResponseWriter, r *http.Request) {
 
 	json.NewEncoder(w).Encode(userInfo)
 }
+
+// Microsoft OAuth2 configuration
+var microsoftConfig = &oauth2.Config{
+	ClientID:     "MS_CLIENT_ID",
+	ClientSecret: "MS_CLIENT_SECRET",
+	RedirectURL:  "http://localhost:8080/auth/microsoft/callback",
+	Scopes:       []string{"User.Read"},
+	Endpoint: oauth2.Endpoint{
+		AuthURL:  "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
+		TokenURL: "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+	},
+}
+
+// Redirect user to Microsoft login
+func MicrosoftLogin(w http.ResponseWriter, r *http.Request) {
+	url := microsoftConfig.AuthCodeURL("randomstate")
+	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+}
+
+// Handle Microsoft callback
+func MicrosoftCallback(w http.ResponseWriter, r *http.Request) {
+
+	code := r.URL.Query().Get("code")
+
+	token, err := microsoftConfig.Exchange(context.Background(), code)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	client := microsoftConfig.Client(context.Background(), token)
+
+	resp, _ := client.Get("https://graph.microsoft.com/v1.0/me")
+
+	var userInfo map[string]interface{}
+	json.NewDecoder(resp.Body).Decode(&userInfo)
+
+	json.NewEncoder(w).Encode(userInfo)
+}

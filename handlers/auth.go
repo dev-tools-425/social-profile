@@ -5,14 +5,16 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/dev-tools-425/social-profile/config"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
 
+// these should be in env vars in production, hardcoded here for simplicity
 var googleConfig = &oauth2.Config{
-	ClientID:     "GOOGLE_CLIENT_ID",
-	ClientSecret: "GOOGLE_CLIENT_SECRET",
-	RedirectURL:  "http://localhost:8080/auth/google/callback",
+	ClientID:     config.GoogleClientID,
+	ClientSecret: config.GoogleClientSecret,
+	RedirectURL:  config.GoogleCallbackURL,
 	Scopes:       []string{"email", "profile"},
 	Endpoint:     google.Endpoint,
 }
@@ -46,9 +48,9 @@ func GoogleCallback(w http.ResponseWriter, r *http.Request) {
 
 // Microsoft OAuth2 configuration
 var microsoftConfig = &oauth2.Config{
-	ClientID:     "MS_CLIENT_ID",
-	ClientSecret: "MS_CLIENT_SECRET",
-	RedirectURL:  "http://localhost:8080/auth/microsoft/callback",
+	ClientID:     config.MSClientID,
+	ClientSecret: config.MSClientSecret,
+	RedirectURL:  config.MSCallbackURL,
 	Scopes:       []string{"User.Read"},
 	Endpoint: oauth2.Endpoint{
 		AuthURL:  "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
